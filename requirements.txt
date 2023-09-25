@@ -7,6 +7,5 @@ streamlit
 pypdf
 # chromadb
 sentence_transformers
-faiss
 faiss-cpu
-llama_index
+# llama_index
