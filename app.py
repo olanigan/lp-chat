@@ -1,5 +1,6 @@
 import streamlit as st
 from store import init_vector_store
+from utils import pretty_print_docs
 
 SEMANTIC = 'semantic'
 CHUNKS = 'chunks'
@@ -22,12 +23,17 @@ def display_form(store):
             submit_button = st.form_submit_button(label='Send')
 
         if submit_button and user_input:
-            output = store.max_marginal_relevance_search(user_input)
+            # output = store.max_marginal_relevance_search(user_input)
+
+            retriever = store.as_retriever()
+            output = retriever.get_relevant_documents(user_input)
             
-            st.session_state[SEMANTIC] =  parse_output(output)      
+            st.session_state[SEMANTIC] =  pretty_print_docs(output)      
 
     with semantic_container:
-       st.text_area(label="Summary:",value=st.session_state[SEMANTIC])
+       st.text_area(label="Summary:",
+                    height=400,
+                    value=st.session_state[SEMANTIC])
  
 
     # with summary_container:
