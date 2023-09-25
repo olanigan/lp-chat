@@ -1,10 +1,11 @@
 langchain==0.0.208
-deeplake
+# deeplake
 openai
-tiktoken
+# tiktoken
 python-dotenv
-# streamlit
-# gradio
+streamlit
 pypdf
-chromadb
+# chromadb
 sentence_transformers
+faiss-cpu
+# cohere
