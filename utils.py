@@ -28,4 +28,4 @@ def get_metadata(info):
     return f"{info['source'].replace('docs/','')}, Page {info['page']}"
 
 def pretty_print_docs(docs):
-    return f"\n{'-' * 100}\n".join([f"Reference {i+1}: " + get_metadata(d.metadata) + ":\n\n" + d.page_content for i, d in enumerate(docs)])
+    return f"\n{'-' * 100}\n".join([f"Source {i+1}: " + get_metadata(d.metadata) + ":\n\n" + d.page_content for i, d in enumerate(docs)])

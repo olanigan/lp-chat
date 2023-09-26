@@ -33,7 +33,6 @@ def load_hf_embeddings():
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
                                     model_kwargs={'device':"cpu"})
     st.session_state[EMBEDDINGS] = embeddings
-    print("LOG-- Loaded Embeddings from HuggingFace")
     return embeddings
 
 @logtime
