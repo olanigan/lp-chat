@@ -8,6 +8,7 @@ from langchain.chat_models import ChatOpenAI
 SEMANTIC = 'semantic'
 CHUNKS = 'chunks'
 SUMMARY = 'summary'
+INDEX = "lpnotes"
 
 STATES = [SEMANTIC, CHUNKS, SUMMARY]
 
@@ -42,7 +43,7 @@ def display_form(store, chain):
             select_submit_button = st.form_submit_button(label='Send')
     
     with col2:
-        with st.form(key='input_form', clear_on_submit=True):
+        with st.form(key='input_form', clear_on_submit=False):
             user_input = st.text_input("Question:", placeholder="What is the ruling of using Siwak", key='input')
             input_submit_button = st.form_submit_button(label='Send')
 
@@ -73,13 +74,13 @@ def chat_chain(store,chain, input):
     summary = chain({"question": input,
                         "context": output})
     st.session_state[SUMMARY] = summary['text']
-    print(summary['question'],summary['text'])
+    print(f"Question: {summary['question']}\n\nAnswer: {summary['text']}")
 
 def main():
     # Initiate session states
     init_state()
     # Initiate/Load Vector store
-    store = init_vector_store("lpnotes")
+    store = init_vector_store(INDEX)
     # Initiate LLMChain
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
     chain = LLMChain(llm=llm, prompt=QA_CHAIN_PROMPT)

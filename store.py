@@ -23,9 +23,7 @@ def load_chunks():
     text_splitter  = RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
     return text_splitter.split_documents(documents)
 
-@logtime
 def load_hf_embeddings():
-
     if EMBEDDINGS in st.session_state:
         return st.session_state[EMBEDDINGS]
 
@@ -43,11 +41,9 @@ def init_vector_store(index):
     if os.path.exists(STORE_DIR+index+".faiss"):
         #load Vector store locally
         store = FAISS.load_local(STORE_DIR,embeddings,index)
-        print("Loaded Vector store locally")
         return store
     
     #vectorstore
     store = FAISS.from_documents(load_chunks(),embeddings)
-    print("LOG-- Loaded Vector store for %s Index with embeddings", index, embeddings)
     store.save_local(STORE_DIR,index)
     return store
