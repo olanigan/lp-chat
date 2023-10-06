@@ -3,3 +3,6 @@ install:
 
 run:
 	streamlit run app.py
+
+api:
+	python3 api.py

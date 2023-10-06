@@ -2,15 +2,6 @@ import time
 import re
 
 def logtime(func):
-  """
-  Decorator to log the execution time of a function.
-
-  Args:
-    func: The function to decorate.
-
-  Returns:
-    A decorated function that logs its execution time.
-  """
 
   def wrapper(*args, **kwargs):
     start_time = time.time()

@@ -1,12 +1,9 @@
 langchain==0.0.208
-# deeplake
+replicate
 openai
-# tiktoken
 python-dotenv
 streamlit
 pypdf
-# chromadb
 sentence_transformers
 faiss-cpu
-# llama_index
 flask

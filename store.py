@@ -9,11 +9,13 @@ from utils import logtime
 
 STORE_DIR = "db/"
 EMBEDDINGS = "embeddings"
+embeddings = None
 
 @logtime
 def load_chunks():
-    if st.session_state['chunks']:
-        return st.session_state['chunks']
+    global chunks
+    if chunks:
+        return chunks
     
     #load the pdf files from the path
     loader = DirectoryLoader('docs/',glob="*.pdf",loader_cls=PyPDFLoader)
@@ -21,16 +23,17 @@ def load_chunks():
 
     #split text into chunks
     text_splitter  = RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
-    return text_splitter.split_documents(documents)
+    chunks = text_splitter.split_documents(documents) 
+    return chunks
 
 def load_hf_embeddings():
-    if EMBEDDINGS in st.session_state:
-        return st.session_state[EMBEDDINGS]
+    global embeddings
+    if embeddings:
+        return embeddings
 
     #create embeddings
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
                                     model_kwargs={'device':"cpu"})
-    st.session_state[EMBEDDINGS] = embeddings
     return embeddings
 
 @logtime
