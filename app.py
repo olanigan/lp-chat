@@ -4,13 +4,21 @@ from utils import pretty_print_docs
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
+from langchain.callbacks import get_openai_callback
+from flask import Flask, request
+
+app = Flask(__name__)
 
 SEMANTIC = 'semantic'
 CHUNKS = 'chunks'
 SUMMARY = 'summary'
-INDEX = "lpnotes"
+INDEX = "first2"
 
 STATES = [SEMANTIC, CHUNKS, SUMMARY]
+
+store = None
+chain = None
 
 # Build prompt
 template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use six sentences maximum. 
@@ -19,7 +27,9 @@ Question: {question}
 Helpful Answer:"""
 QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
 
+st.set_page_config(layout="wide")
 st.title("🧠📚📈 Logical Progression")
+st.markdown("## Class Notes from Year 1 - 10!")
 
 def init_state():
     for state in STATES:
@@ -36,7 +46,7 @@ def display_form(store, chain):
         with st.form(key='select_form'):
             sample_input = st.selectbox(
                 "Select example questions?",
-                ("What is the ruling on using the Siwak?", "What is Logical Progression?", "Importance of seeking knowledge", "How to handle pig impurities"),
+                ("What is the ruling on using the Siwak?", "What is Logical Progression?", "Importance of seeking knowledge", "How to handle pig impurities","Wearing gold silver for men"),
                 index=0,
                 placeholder="Select sample question...",
                 )
@@ -49,9 +59,9 @@ def display_form(store, chain):
 
 
         if select_submit_button and sample_input:
-            chat_chain(store, chain, sample_input)
+            chat_chain(sample_input)
         elif input_submit_button and user_input:
-            chat_chain(store,chain, user_input)
+            chat_chain(user_input)
 
     with summary_container:
         st.text_area(label="Summary:",
@@ -63,29 +73,59 @@ def display_form(store, chain):
                     height=400,
                     value=st.session_state[SEMANTIC])
 
-def chat_chain(store,chain, input):
+def chat_chain(input):
     retriever = store.as_retriever()
     # Retreive related search results
     output = retriever.get_relevant_documents(input)
     output =  pretty_print_docs(output)
     st.session_state[SEMANTIC] =  output
-
-    # Use LLM to summarize/optimize results
-    summary = chain({"question": input,
+    # Call LLMChain
+    with get_openai_callback() as cb:
+        # Use LLM to summarize/optimize results
+        summary = chain({"question": input,
                         "context": output})
-    st.session_state[SUMMARY] = summary['text']
+        st.session_state[SUMMARY] = summary['text']
+        print(cb)
     print(f"Question: {summary['question']}\n\nAnswer: {summary['text']}")
+    return {"summary": summary, "sources": output}
+
+@app.route('/')
+def home():
+    return "Welcome to LP Chat API", 200
+
+@app.route('/api', methods=['GET', 'POST'])
+def index():
+    """Prints the POST request message."""
+    message = request.get_json()
+    message = message['message']
+    print(f"Received message: {message}")
+    # return "Welcome to LP Chat API", 200
+    print('Loading Store&Chain for HTTP')
+    return chat_chain(message), 200
 
 def main():
-    # Initiate session states
+    print('Loading Store&Chain for UI')
+    store, chain = get_ops()
+    # Show Q&A Form
+    display_form(store, chain)
+
+def get_ops():
+    global store, chain
+    if not store or not chain:
+        print("Initializing Store&Chain")
+        store, chain = init_ops()
+    return store, chain
+
+def init_ops():
+      # Initiate session states
     init_state()
     # Initiate/Load Vector store
     store = init_vector_store(INDEX)
     # Initiate LLMChain
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
     chain = LLMChain(llm=llm, prompt=QA_CHAIN_PROMPT)
-    # Show Q&A Form
-    display_form(store, chain)
+    return store, chain
 
 if __name__ == "__main__":
     main()
+    app.run(port=5001)

@@ -9,3 +9,4 @@ pypdf
 sentence_transformers
 faiss-cpu
 # llama_index
+flask
