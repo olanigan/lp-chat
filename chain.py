@@ -7,7 +7,7 @@ from langchain.callbacks import get_openai_callback
 from store import init_vector_store
 from utils import pretty_print_docs
 
-INDEX = "first2"
+INDEX = "lpnotes"
 
 # Build prompt
 template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use six sentences maximum. 

@@ -10,29 +10,27 @@ from utils import logtime
 STORE_DIR = "db/"
 EMBEDDINGS = "embeddings"
 embeddings = None
+chunks = None
 
 @logtime
 def load_chunks():
     global chunks
-    if chunks:
-        return chunks
-    
-    #load the pdf files from the path
-    loader = DirectoryLoader('docs/',glob="*.pdf",loader_cls=PyPDFLoader)
-    documents = loader.load()
+    if not chunks:
+        #load the pdf files from the path
+        loader = DirectoryLoader('docs/',glob="*.pdf",loader_cls=PyPDFLoader)
+        documents = loader.load()
 
-    #split text into chunks
-    text_splitter  = RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
-    chunks = text_splitter.split_documents(documents) 
+        #split text into chunks
+        text_splitter  = RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
+        chunks = text_splitter.split_documents(documents) 
+    
     return chunks
 
 def load_hf_embeddings():
     global embeddings
-    if embeddings:
-        return embeddings
-
-    #create embeddings
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
+    if not embeddings:
+        #create embeddings
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
                                     model_kwargs={'device':"cpu"})
     return embeddings
 
